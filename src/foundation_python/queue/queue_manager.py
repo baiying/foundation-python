@@ -55,7 +55,7 @@ class QueueManager:
                     print('连接消息队列失败')
                     raise Exception(f"连接 {queue_type} 消息队列失败，队列名称为：{queue_name}")
 
-    async def add_job(self, job_name, job_data, opts):
+    async def add_job(self, job_name, job_data, opts=None):
         """
         向队列中添加新任务
         :param job_name: 任务名称
@@ -63,7 +63,10 @@ class QueueManager:
         :param opts: 任务配置，参见BullMQ中任务配置项
         :return:
         """
-        await self.queue.add(job_name, job_data, opts)
+        if opts is None:
+            await self.queue.add(job_name, job_data)
+        else:
+            await self.queue.add(job_name, job_data, opts)
 
     async def start_worker(self, func_process, func_completed=None, func_failed=None):
         """
