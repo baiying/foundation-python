@@ -16,6 +16,7 @@ class QueueManager:
         self.client = None
         self.global_config = load_global_config()
         self.local_config = load_local_config()
+        print(f'Global Config: {self.global_config}')
 
         if queue_name == '':
             raise ValueError(f"未设置队列名称")
@@ -45,6 +46,7 @@ class QueueManager:
                     "connection": self.client,
                     "prefix": self.global_config['queue_common_setting']['prefix']
                 })
+                print(f'queue: {self.queue}')
             except exceptions.ConnectionError:
                 retry += 1
                 if retry > self.global_config['queue_common_setting']['connect_failed_retry_times']:
