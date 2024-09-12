@@ -1,23 +1,22 @@
 from bullmq import Queue, Worker, Job
 import redis.asyncio as redis
-from queue_config import *
 from redis import exceptions
 from asyncio import Event
+from src.foundation_python.util.common import load_global_config, load_local_config
 
 
 class QueueManager:
-    def __init__(self, queue_type='central', queue_name='', opts=None):
+    def __init__(self, queue_type='central', queue_name=''):
         """
         指定队列的管理器
         :param queue_type: 队列类型，取值：central 中央队列，local 本地队列
         :param queue_name: 队列名称
-        :param opts: 本地队列配置参数，当type=local时，该参数才生效。该参数中需要包含以下字段：
-        host: 本地redis服务器地址
-        port: 本地REDIS服务器端口
-        db: 本地redis服务器数据库编号
         """
         self.queue = None
         self.client = None
+        self.global_config = load_global_config()
+        self.local_config = load_local_config()
+
         if queue_name == '':
             raise ValueError(f"未设置队列名称")
         self.queue_name = queue_name
@@ -25,35 +24,32 @@ class QueueManager:
         if queue_type == 'central':
             self.client = redis.Redis(
                 decode_responses=True,
-                host=CENTRAL_REDIS_HOST,
-                port=CENTRAL_REDIS_PORT,
-                db=CENTRAL_REDIS_DB
+                host=self.global_config['central_queue_setting']['host'],
+                port=int(self.global_config['central_queue_setting']['port']),
+                db=int(self.global_config['central_queue_setting']['db'])
             )
         elif queue_type == 'local':
-            if opts is None:
-                raise ValueError(f"缺少本地队列配置信息")
-
             self.client = redis.Redis(
                 decode_responses=True,
-                host=opts['host'],
-                port=opts['port'],
-                db=opts['db']
+                host=self.local_config['local_queue_setting']['host'],
+                port=int(self.local_config['local_queue_setting']['port']),
+                db=int(self.local_config['local_queue_setting']['db'])
             )
         else:
             raise ValueError(f"{queue_type} 是无效的队列类型值，队列类型值包括：central, local")
 
         retry = 0
-        while retry < CONNECT_FAILED_RETRY:
+        while retry < self.global_config['queue_common_setting']['connect_failed_retry_times']:
             try:
                 self.queue = Queue(queue_name, {
                     "connection": self.client,
-                    "prefix": QUEUE_PREFIX
+                    "prefix": self.global_config['queue_common_setting']['prefix']
                 })
             except exceptions.ConnectionError:
                 retry += 1
-                if retry > CONNECT_FAILED_RETRY:
+                if retry > self.global_config['queue_common_setting']['connect_failed_retry_times']:
                     print('连接消息队列失败')
-                    raise Exception(f"连接 {queue_type} 消息队列失败，队列名称为：{queue_name}, 配置参数为：{opts}")
+                    raise Exception(f"连接 {queue_type} 消息队列失败，队列名称为：{queue_name}")
 
     async def add_job(self, job_name, job_data, opts):
         """
@@ -65,7 +61,7 @@ class QueueManager:
         """
         await self.queue.add(job_name, job_data, opts)
 
-    async def start_worker(self, process_func):
+    async def start_worker(self, func_process, func_completed=None, func_failed=None):
         """
         启动工作进程消费任务
         :return:
@@ -73,14 +69,20 @@ class QueueManager:
         stop_event = Event()
 
         def on_completed(job, result):
-            pass
+            if func_completed is not None:
+                func_completed(job, result)
+            else:
+                pass
 
         def on_failed(job, err):
-            pass
+            if func_failed is not None:
+                func_failed(job, err)
+            else:
+                pass
 
-        worker = Worker(self.queue_name, process_func, {
+        worker = Worker(self.queue_name, func_process, {
             "connection": self.client,
-            "prefix": QUEUE_PREFIX
+            "prefix": self.global_config['queue_common_setting']['prefix']
         })
 
         try:

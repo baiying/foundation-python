@@ -3,8 +3,8 @@ central_queue_setting:
   host: localhost
   port: 6379
   db: 0
-  # 连接失败重试次数
-  connect_failed_retry_times: 2
 # 消息队列通用配置
 queue_common_setting:
   prefix: cv
+  # 连接失败重试次数
+  connect_failed_retry_times: 2

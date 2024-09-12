@@ -46,8 +46,8 @@ def load_config():
     加载全局配置和本地配置
     :return:
     """
-    global_config = load_global_config()
-    local_config = load_local_config()
+    global_config = {"global": load_global_config()}
+    local_config = {"local": load_local_config()}
     return {**global_config, **local_config}
 
 
