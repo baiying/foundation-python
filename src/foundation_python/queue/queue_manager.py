@@ -2,7 +2,7 @@ from bullmq import Queue, Worker, Job
 import redis.asyncio as redis
 from redis import exceptions
 from asyncio import Event
-from src.foundation_python.util.common import load_global_config, load_local_config
+from ..util.common import load_global_config, load_local_config
 
 
 class QueueManager:
