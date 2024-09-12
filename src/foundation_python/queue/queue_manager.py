@@ -66,6 +66,16 @@ class QueueManager:
         else:
             await self.queue.add(job_name, job_data, opts)
 
+    async def receipt(self, task_id, status, result):
+        """
+        任务执行结果回执
+        :param task_id: 任务ID
+        :param status: 执行状态，success 成功，fail 失败
+        :param result: 返回数据
+        :return:
+        """
+        await self.queue.add('receipt', {"task_id": task_id, "status": status, **result})
+
     async def start_worker(self, func_process, func_completed=None, func_failed=None):
         """
         启动工作进程消费任务
@@ -89,7 +99,7 @@ class QueueManager:
             "connection": self.client,
             "prefix": self.global_config['queue_common_setting']['prefix']
         })
-        
+
         worker.on("completed", on_completed)
         worker.on("failed", on_failed)
 
