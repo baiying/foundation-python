@@ -66,17 +66,32 @@ class QueueManager:
         else:
             await self.queue.add(job_name, job_data, opts)
 
-    async def start_worker(self, func_process):
+    async def start_worker(self, func_process, func_completed=None, func_failed=None):
         """
         启动工作进程消费任务
         :return:
         """
         stop_event = Event()
 
+        def on_completed(job, result):
+            if func_completed is not None:
+                func_completed(job, result)
+            else:
+                pass
+
+        def on_failed(job, err):
+            if func_failed is not None:
+                func_failed(job, err)
+            else:
+                pass
+
         worker = Worker(self.queue_name, func_process, {
             "connection": self.client,
             "prefix": self.global_config['queue_common_setting']['prefix']
         })
+        
+        worker.on("completed", on_completed)
+        worker.on("failed", on_failed)
 
         try:
             await stop_event.wait()
