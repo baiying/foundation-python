@@ -40,13 +40,15 @@ class QueueManager:
             raise ValueError(f"{queue_type} 是无效的队列类型值，队列类型值包括：central, local")
 
         retry = 0
-        while retry < self.global_config['queue_common_setting']['connect_failed_retry_times']:
+        connected = False
+        while not connected and retry < self.global_config['queue_common_setting']['connect_failed_retry_times']:
             try:
                 self.queue = Queue(queue_name, {
                     "connection": self.client,
                     "prefix": self.global_config['queue_common_setting']['prefix']
                 })
                 print(f'queue: {self.queue}')
+                connected = True
             except exceptions.ConnectionError:
                 retry += 1
                 if retry > self.global_config['queue_common_setting']['connect_failed_retry_times']:
