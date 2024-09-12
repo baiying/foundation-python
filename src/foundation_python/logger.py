@@ -3,16 +3,15 @@ import logging
 from dotenv import load_dotenv
 from logging.handlers import TimedRotatingFileHandler
 
-load_dotenv()
-
 
 def load_log_config():
     """
     从环境变量中加载日志配置信息
     :return:
     """
+    load_dotenv()
     log_level = os.getenv('LOG_LEVEL', 'INFO')
-    log_dir = os.getenv('LOG_DIR', '/Users/evan/Code/logs/foundation-python')
+    log_dir = os.getenv('LOG_DIR', '/tmp/logs')
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     return log_level, log_dir

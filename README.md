@@ -1,12 +1,11 @@
 # foundation-python
 微服务架构项目的共享库-python版
 
-## foundation-python.logger.logger
+## foundation-python.logger
 日志模块，提供日志记录及日志管理功能
-### logger.log(level, message) 
-记录日志  
-__level__ 记录日志级别，info/warn/error  
-__message__ 日志内容
+### logger_instance(name) -> Logger
+获取日志实例  
+__name__ 日志实例名称  
 
 ## foundation-python.queue.queue_manager
 队列管理模块  
