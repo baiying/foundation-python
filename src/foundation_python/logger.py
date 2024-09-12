@@ -40,6 +40,7 @@ def logger_instance(name):
     # 控制台日志处理
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(format_log())
+    instance.addHandler(console_handler)
     # 文件日志处理
     file_handler = TimedRotatingFileHandler(f'{log_dir}/app.log', when='midnight', interval=1)
     file_handler.setFormatter(format_log())
