@@ -16,7 +16,6 @@ class QueueManager:
         self.client = None
         self.global_config = load_global_config()
         self.local_config = load_local_config()
-        print(f'Global Config: {self.global_config}')
 
         if queue_name == '':
             raise ValueError(f"未设置队列名称")
@@ -47,7 +46,6 @@ class QueueManager:
                     "connection": self.client,
                     "prefix": self.global_config['queue_common_setting']['prefix']
                 })
-                print(f'queue: {self.queue}')
                 connected = True
             except exceptions.ConnectionError:
                 retry += 1
@@ -68,24 +66,12 @@ class QueueManager:
         else:
             await self.queue.add(job_name, job_data, opts)
 
-    async def start_worker(self, func_process, func_completed=None, func_failed=None):
+    async def start_worker(self, func_process):
         """
         启动工作进程消费任务
         :return:
         """
         stop_event = Event()
-
-        def on_completed(job, result):
-            if func_completed is not None:
-                func_completed(job, result)
-            else:
-                pass
-
-        def on_failed(job, err):
-            if func_failed is not None:
-                func_failed(job, err)
-            else:
-                pass
 
         worker = Worker(self.queue_name, func_process, {
             "connection": self.client,
