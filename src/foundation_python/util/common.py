@@ -14,41 +14,34 @@ def short_uuid():
     """
     return shortuuid.uuid()
 
-
-def load_global_config():
+def load_config():
     """
-    加载全局配置
-    :return:
-    """
-    current_dir = os.path.dirname(__file__)
-    global_config_file = os.path.abspath(os.path.join(current_dir, '..', 'global_config.yaml'))
-    with open(global_config_file, 'r') as file:
-        config = yaml.safe_load(file)
-    return config
-
-
-def load_local_config():
-    """
-    加载本地配置
+    加载服务配置信息
     :return:
     """
     project_root = sys.path[0]
-    local_config_file = os.path.abspath(os.path.join(project_root, 'local_config.yaml'))
+    local_config_file = os.path.abspath(os.path.join(project_root, '.config.yml'))
     if not os.path.exists(local_config_file):
-        raise FileNotFoundError('未找到本地配置文件 local_config.yaml，请创建该配置文件后再次尝试')
+        raise FileNotFoundError('未找到本地配置文件 .config.yml，请创建该配置文件后再次尝试')
     with open(local_config_file, 'r') as file:
         config = yaml.safe_load(file)
     return config
 
-
-def load_config():
+def config_value(config, key_path, default_value):
     """
-    加载全局配置和本地配置
+    读取配置文件中的值，如果配置项不存在则返回默认值
+    :param config:
+    :param key_path:
+    :param default_value:
     :return:
     """
-    global_config = {"global": load_global_config()}
-    local_config = {"local": load_local_config()}
-    return {**global_config, **local_config}
-
-
-
+    keys = key_path.split(".")
+    current = config
+    for key in keys:
+        if isinstance(current, dict):
+            if key in current:
+                current = current[key]
+            else:
+                return default_value
+        else:
+            return current

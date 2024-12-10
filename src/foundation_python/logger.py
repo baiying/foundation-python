@@ -1,7 +1,7 @@
 import os
 import logging
-from dotenv import load_dotenv
 from logging.handlers import TimedRotatingFileHandler
+from util.common import load_config, config_value
 
 
 def load_log_config():
@@ -9,9 +9,9 @@ def load_log_config():
     从环境变量中加载日志配置信息
     :return:
     """
-    load_dotenv()
-    log_level = os.getenv('LOG_LEVEL', 'INFO')
-    log_dir = os.getenv('LOG_DIR', '/tmp/logs')
+    config = load_config()
+    log_level = config_value(config, 'log.level', 'INFO')
+    log_dir = config_value(config, 'log.dir', '/tmp/logs')
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     return log_level, log_dir
