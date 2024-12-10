@@ -1,7 +1,7 @@
 import os
 import logging
 from logging.handlers import TimedRotatingFileHandler
-from util.common import load_config, config_value
+from .util.common import load_config, config_value
 
 
 def load_log_config():
