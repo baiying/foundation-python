@@ -1,0 +1,15 @@
+region: us
+log:
+  level: INFO
+  dir: /tmp/logs
+queue_common_setting:
+  prefix: cv
+  connect_failed_retry_times: 3
+central_queue:
+  host: localhost
+  port: 6379
+  db: 0
+local_queue:
+  host: localhost
+  port: 6379
+  db: 1
