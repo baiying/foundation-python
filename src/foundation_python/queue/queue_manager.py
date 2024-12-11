@@ -16,8 +16,7 @@ class QueueManager:
         self.client = None
         self.config = load_config()
         self.queue_prefix = config_value(self.config, 'queue_common_setting.prefix', 'cv')
-        self.retry_times = int(config_value(self.config, 'queue_common_setting.connect_failed_retry_times', '3'))
-
+        self.retry_times = config_value(self.config, 'queue_common_setting.retry_times', 3)
         if queue_name == '':
             raise ValueError(f"未设置队列名称")
         self.queue_name = queue_name
@@ -26,15 +25,15 @@ class QueueManager:
             self.client = redis.Redis(
                 decode_responses=True,
                 host = config_value(self.config, 'central_queue.host', ''),
-                port = int(config_value(self.config, 'central_queue.port', '6379')),
-                db = int(config_value(self.config, 'central_queue.db', '1'))
+                port = config_value(self.config, 'central_queue.port', 6379),
+                db = config_value(self.config, 'central_queue.db', 1)
             )
         elif queue_type == 'local':
             self.client = redis.Redis(
                 decode_responses=True,
-                host=config_value(self.config, 'local_queue.host', ''),
-                port=int(config_value(self.config, 'local_queue.port', '6379')),
-                db=int(config_value(self.config, 'local_queue.db', '1'))
+                host = config_value(self.config, 'local_queue.host', ''),
+                port = config_value(self.config, 'local_queue.port', 6379),
+                db = config_value(self.config, 'local_queue.db', '1')
             )
         else:
             raise ValueError(f"{queue_type} 是无效的队列类型值，队列类型值包括：central, local")

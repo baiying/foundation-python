@@ -43,9 +43,10 @@ def config_value(config, key_path, default_value = ''):
         if isinstance(current, dict):
             if key in current:
                 current = current[key]
-                if isinstance(current, str):
+                if isinstance(current, str) or isinstance(current, int):
                     return current
             else:
                 return default_value
         else:
             return current
+    return current

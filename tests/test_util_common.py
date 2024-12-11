@@ -5,12 +5,12 @@ def test_short_uuid():
     assert isinstance(result, str)
 
 def test_load_config():
-    config_file = '/Users/evan/Code/foundation-python/tests/.config.yml'
+    config_file = '/Users/evan/Code/foundation-python/.config.yml'
     result = load_config(config_file)
     assert result['region'] == 'us'
 
 def test_config_value():
-    config_file = '/Users/evan/Code/foundation-python/tests/.config.yml'
+    config_file = '/Users/evan/Code/foundation-python/.config.yml'
     config = load_config(config_file)
     assert config_value(config, 'region') == 'us'
     assert config_value(config, 'log.level') == 'INFO'
